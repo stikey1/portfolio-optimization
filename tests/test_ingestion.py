@@ -1,6 +1,6 @@
 import pandas as pd
 from src.ingestion import YFinanceSource
-from datetime import date, time
+from datetime import date
 
 def test_yfinance_fetch_returns_dataframe():
     source = YFinanceSource()
