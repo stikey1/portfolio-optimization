@@ -46,7 +46,12 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
 # parquet functions
 def save_to_parquet(df: pd.DataFrame, path: str):
-    ...
+    df.to_parquet(
+         path, 
+         engine="pyarrow", 
+         compression="snappy",
+         index=True)
+    
 # reads from parquet 
 def load_data(tickers: list[str], data_dir: Path | str = "data") -> pd.DataFrame:
     """reads cached Parquet files from data_dir, returns columns for requested tickers
