@@ -1,34 +1,42 @@
 name: CI
 
+# When does this run?
 on:
   push:
-    branches: [main]
+    branches: ["dev", "main"]
   pull_request:
-    branches: [main]
+    branches: ["dev", "main"]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
+    runs-on: ubuntu-latest       # GitHub spins up a fresh Ubuntu machine
 
     steps:
-      - uses: actions/checkout@v4
+      # Step 1: Pull your repo code onto the machine
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      # Step 2: Install Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
+      # Step 3: Install your dependencies
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest ruff
+          pip install black flake8 pytest pytest-cov
 
-      - name: Lint with ruff
-        run: ruff check src tests app.py
+      # Step 4: Check formatting with black
+      # --check means "tell me if formatting is wrong" without changing files
+      - name: Run black
+        run: black --check .
 
-      - name: Run tests
-        run: pytest tests/ -v
+      # Step 5: Check code style with flake8
+      - name: Run flake8
+        run: flake8 . --max-line-length=88 --exclude=.venv,__pycache__
+
+      # Step 6: Run tests with coverage
+      - name: Run pytest
+        run: pytest --cov=. --cov-report=term-missing --cov-fail-under=70
