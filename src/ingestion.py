@@ -7,6 +7,10 @@ from datetime import date
 import time
 import yfinance as yf
 
+# Custom exceptions
+class TickerNotCachedError(Exception):
+    pass
+
 # abstract base class for data sources
 class DataSource(ABC):
     @abstractmethod
@@ -52,26 +56,30 @@ def save_to_parquet(df: pd.DataFrame, path: str):
          compression="snappy",
          index=True)
     
-# reads from parquet 
+# reads from parquet, returns requested tickers, raise if missing
 def load_data(tickers: list[str], data_dir: Path | str = "data") -> pd.DataFrame:
-    """reads cached Parquet files from data_dir, returns columns for requested tickers
+    data_dir = Path(data_dir)
+    parquet_path = data_dir / "prices.parquet"
 
-    Args:
-        tickers: List of stock ticker symbols.
-        data_dir: Directory containing downloaded Parquet files.
+    # check the file exists at all
+    if not parquet_path.exists():
+        raise FileNotFoundError(
+            f"No parquet file found at {parquet_path}. "
+            f"Run run_ingestion() first to fetch and cache data."
+        )
 
-    Returns:
-        DataFrame indexed by date with one column per ticker.
+    df = pd.read_parquet(parquet_path)
 
-    Raises:
-        NotImplementedError: Placeholder until data pipeline is implemented.
-    """
-    # if missing:
-    #      raise TickerNotCachedError(
-    #           f"No cached data for: {sorted(missing)}."
-    #           f"Run ingestion first to fetch and cache data, e.g. run_ingestion(YFinanceSource(), {sorted(missing)}, {start}, {end}, 'data/')"
-    #      )
-    raise NotImplementedError("Data ingestion not yet implemented.")
+    # check which requested tickers are missing from the file
+    missing = [t for t in tickers if t not in df.columns]
+    if missing:
+        raise TickerNotCachedError(
+            f"No cached data for: {sorted(missing)}. "
+            f"Run run_ingestion() first, e.g. run_ingestion(YFinanceSource(), "
+            f"{sorted(missing)}, start, end, '{data_dir}/')"
+        )
+
+    return df[tickers]
 
 
 
