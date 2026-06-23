@@ -23,7 +23,7 @@ class YFinanceSource(DataSource):
                 if data.empty:
                      raise ValueError("No data fetched. Check tickers and date range.")
                 return data
-            except Exception as e:
+            except Exception:
                  if attempt == 2:   # last attempt, re-raise exception
                       raise
                  time.sleep(2 ** attempt)  # exponential backoff
@@ -38,15 +38,10 @@ class AlphaVantageSource(DataSource):
 
 # cleans data (source-agnostic)
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Clean raw price data (forward-fill gaps, drop invalid rows).
-
-    Args:
-        prices: Raw price DataFrame.
-
-    Returns:
-        Cleaned price DataFrame.
-    """
+    # remove rows with all NaN values 
     cleaned = df.ffill().dropna(how="all")
+
+    #remove columns with all NaN values
     return cleaned.dropna(axis=1, how="all")
 
 # parquet functions
