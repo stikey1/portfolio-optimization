@@ -17,7 +17,7 @@ def load_prices(tickers: list[str], data_dir: Path | str = "data") -> pd.DataFra
         )
     stocks.to_parquet("stocks.parquet")
     loaded = pd.read_parquet("stocks.parquet")
-   return stocks
+    return stocks
 
 def clean_prices(prices: pd.DataFrame) -> pd.DataFrame:
     """Clean raw price data (forward-fill gaps, drop invalid rows).
@@ -30,3 +30,4 @@ def clean_prices(prices: pd.DataFrame) -> pd.DataFrame:
     """
     cleaned = prices.ffill().dropna(how="all")
     return cleaned.dropna(axis=1, how="all")
+
