@@ -1,6 +1,17 @@
 [project]
 name = "portfolio-optimization"
 version = "0.1.0"
+dependencies = [
+    "yfinance==0.2.40",
+    "pandas==2.2.2",
+    "numpy==1.26.4",
+    "scipy==1.13.0",
+    "cvxpy==1.5.1",
+    "plotly==5.22.0",       
+    "streamlit==1.35.0",
+    "pyarrow==16.1.0",
+    "pytest>=8.0"
+]
 
 [tool.pytest.ini_options]
 pythonpath = "."
