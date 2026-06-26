@@ -20,11 +20,9 @@ def load_prices(tickers: list[str], data_dir: Path | str = "data") -> pd.DataFra
     return stocks
 
 def clean_prices(prices: pd.DataFrame) -> pd.DataFrame:
-    """Clean raw price data (forward-fill gaps, drop invalid rows).
-
+    """Clean raw price data (forward-fill gaps, drop invalid rows)
     Args:
         prices: Raw price DataFrame.
-
     Returns:
         Cleaned price DataFrame.
     """

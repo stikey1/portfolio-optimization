@@ -1,8 +1,8 @@
 """Module 3: Compute optimal portfolio weights."""
 
-import numpy as np
-import pandas as pd
-from scipy.optimize import minimize
+# import numpy as np
+# import pandas as pd
+# from scipy.optimize import minimize
 
 
 def portfolio_return(weights: np.ndarray, expected_returns: np.ndarray) -> float:
