@@ -80,9 +80,6 @@ def load_data(tickers: list[str], data_dir: Path | str = "data") -> pd.DataFrame
 
     return df[tickers]
 
-
-
-
 # main ingestion function to refresh data and save to Parquet (called from app.py)
 def run_ingestion(source: DataSource, tickers: list[str], start: date, end: date, out_path: str) -> pd.DataFrame:
     raw = source.fetch(tickers, start, end)
