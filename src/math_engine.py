@@ -14,13 +14,28 @@ def compute_returns(prices: pd.DataFrame, method: str = "log") -> pd.DataFrame:
     Returns:
         DataFrame of daily returns.
     """
-    if method == "log":
-        return np.log(prices / prices.shift(1)).dropna()
-    if method == "simple":
+    if(prices.any().any() <= 0):
+        raise ValueError("Prices cannot be negative")
+    
+    if(method == "log"):
+        return np.log(prices/prices.shift(1)).dropna()
+    elif(method == "simple"):
         return prices.pct_change().dropna()
     raise ValueError(f"Unknown return method: {method!r}")
 
+def compute_expected_returns(returns: pd.DataFrame) -> pd.Series:
+    """Compute expected returns from return series.
 
+    Args:
+        returns: DataFrame of daily returns.
+
+    Returns:
+        Series of expected returns.
+    """
+    mu = returns.mean()*252
+    return mu
+
+    
 def compute_covariance(returns: pd.DataFrame, annualize: bool = True) -> pd.DataFrame:
     """Compute the covariance matrix of asset returns.
 

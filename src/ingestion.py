@@ -33,7 +33,6 @@ class YFinanceSource(DataSource):
                  time.sleep(2 ** attempt)  # exponential backoff
                  
 
-
 class AlphaVantageSource(DataSource):
     def fetch(self, tickers: list[str], start: date, end: date) -> pd.DataFrame:
                 ...  # retry logic can live here, or be factored into a helper
