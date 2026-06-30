@@ -30,8 +30,9 @@ def maximize_sharpe_ratio( expected_returns: pd.Series,cov_matrix: pd.DataFrame,
     n = len(expected_returns)
     tickers = expected_returns.index
 
-    # lambda fucntion to minimize negative Sharpe ratio
-    neg_sharpe = lambda w: -sharpe_ratio(w, expected_returns.values, cov_matrix.values, risk_free_rate)
+    # nested function to minimize negative Sharpe ratio
+    def neg_sharpe(w):
+        return -sharpe_ratio(w, expected_returns.values, cov_matrix.values, risk_free_rate)
 
     # sum of weights must equal 1, weights must be between 0 and 1
     constraints = {"type": "eq", "fun": lambda w: np.sum(w) - 1.0}
