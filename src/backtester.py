@@ -6,7 +6,8 @@ from src.optimizer import maximize_sharpe_ratio
 
 
 def backtest(prices: pd.DataFrame, risk_free_rate: float = 0.0, lookback_days: int = 252):
-    log_returns = compute_returns(prices)
+    log_returns = compute_returns(prices, "log")
+    simple_returns = compute_returns(prices, "simple")
 
     # One date per month-end -> these are your rebalance points
     month_end_dates = log_returns.resample("ME").last().index
@@ -18,25 +19,24 @@ def backtest(prices: pd.DataFrame, risk_free_rate: float = 0.0, lookback_days: i
         rebal_date = month_end_dates[i]
         next_rebal_date = month_end_dates[i + 1]
 
-        # 1. Trailing 252-day window ending at this month's rebalance date
         window = log_returns.loc[:rebal_date].tail(lookback_days)
         if len(window) < lookback_days:
-            continue  # not enough history yet, skip this month
+            continue
 
-        # 2. Recompute weights from that window
         exp_returns = compute_expected_returns(window)
         cov_matrix = compute_covariance(window)
         weights = maximize_sharpe_ratio(exp_returns, cov_matrix, risk_free_rate)
         weights_history[rebal_date] = weights
 
-        # 3. Apply those weights to NEXT month's actual realized returns
-        next_month_returns = log_returns.loc[rebal_date:next_rebal_date].iloc[1:]
+        # Use SIMPLE returns here — this is what's actually additive across assets
+        next_month_returns = simple_returns.loc[rebal_date:next_rebal_date].iloc[1:]
         port_returns_next_month = next_month_returns @ weights
         portfolio_returns.append(port_returns_next_month)
+
     if not portfolio_returns:
         return {"returns": pd.Series(dtype=float), "cumulative_value": pd.Series(dtype=float)}
     portfolio_returns = pd.concat(portfolio_returns).sort_index()
-    cumulative_value = (1 + portfolio_returns).cumprod()
+    cumulative_value = (1 + portfolio_returns).cumprod()   # now correct: simple returns in, cumprod compounding
 
     return {
         "returns": portfolio_returns,
