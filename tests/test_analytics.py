@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import pytest
+# import pytest
 from src.analytics import (
     cumulative_returns,
     annualized_sharpe_ratio,
