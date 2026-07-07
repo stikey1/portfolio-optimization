@@ -25,21 +25,22 @@ def sharpe_ratio(weights : np.ndarray, expected_returns: np.ndarray, cov_matrix:
     denominator = np.sqrt(portfolio_variance(weights, cov_matrix))
     return numerator / denominator if denominator != 0 else 0.0
 
-def maximize_sharpe_ratio( expected_returns: pd.Series,cov_matrix: pd.DataFrame,
-                            risk_free_rate: float = 0.0) -> pd.Series:
+def maximize_sharpe_ratio(
+    expected_returns: pd.Series,
+    cov_matrix: pd.DataFrame,
+    risk_free_rate: float = 0.0,
+    max_weight: float = 1.0,
+) -> pd.Series:
     n = len(expected_returns)
     tickers = expected_returns.index
 
-    # nested function to minimize negative Sharpe ratio
     def neg_sharpe(w):
         return -sharpe_ratio(w, expected_returns.values, cov_matrix.values, risk_free_rate)
 
-    # sum of weights must equal 1, weights must be between 0 and 1
     constraints = {"type": "eq", "fun": lambda w: np.sum(w) - 1.0}
-    bounds = [(0.0, .5)] * n
+    bounds = [(0.0, max_weight)] * n
     x0 = np.ones(n) / n
 
-    # minimize with sequantial least squares programming for constrained optimization
     result = minimize(neg_sharpe, x0, method="SLSQP", bounds=bounds, constraints=constraints)
     return pd.Series(result.x, index=tickers, name="weight")
 
