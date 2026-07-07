@@ -91,7 +91,8 @@ def test_no_lookahead_bias(price_df):
     result_original = backtest(price_df)
 
     corrupted = price_df.copy()
-    corrupted.loc[cutoff:] = corrupted.loc[cutoff:] * 5.0
+    corruption_start = price_df.index[price_df.index.get_loc(cutoff) + 1]
+    corrupted.loc[corruption_start:] = corrupted.loc[corruption_start:] * 5.0
     result_corrupted = backtest(corrupted)
 
     pre_cutoff_original = result_original["returns"].loc[:cutoff]

@@ -1,8 +1,8 @@
 """Module 4: Simulate historical performance."""
 
 import pandas as pd
-from math_engine import compute_returns, compute_expected_returns, compute_covariance
-from optimizer import maximize_sharpe_ratio
+from src.math_engine import compute_returns, compute_expected_returns, compute_covariance
+from src.optimizer import maximize_sharpe_ratio
 
 
 def backtest(prices: pd.DataFrame, risk_free_rate: float = 0.0, lookback_days: int = 252):
@@ -33,7 +33,8 @@ def backtest(prices: pd.DataFrame, risk_free_rate: float = 0.0, lookback_days: i
         next_month_returns = log_returns.loc[rebal_date:next_rebal_date].iloc[1:]
         port_returns_next_month = next_month_returns @ weights
         portfolio_returns.append(port_returns_next_month)
-
+    if not portfolio_returns:
+        return {"returns": pd.Series(dtype=float), "cumulative_value": pd.Series(dtype=float)}
     portfolio_returns = pd.concat(portfolio_returns).sort_index()
     cumulative_value = (1 + portfolio_returns).cumprod()
 
