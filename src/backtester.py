@@ -2,7 +2,7 @@
 
 import pandas as pd
 from src.math_engine import compute_returns, compute_expected_returns, compute_covariance
-from src.optimizer import maximize_sharpe_ratio
+from src.optimizer import maximize_sharpe_ratio, shrink_expected_returns
 
 
 def backtest(prices: pd.DataFrame, risk_free_rate: float = 0.0, lookback_days: int = 252):
@@ -23,7 +23,7 @@ def backtest(prices: pd.DataFrame, risk_free_rate: float = 0.0, lookback_days: i
         if len(window) < lookback_days:
             continue
 
-        exp_returns = compute_expected_returns(window)
+        exp_returns = exp_returns = shrink_expected_returns(compute_expected_returns(window), shrinkage=0.3)
         cov_matrix = compute_covariance(window)
         weights = maximize_sharpe_ratio(exp_returns, cov_matrix, risk_free_rate)
         weights_history[rebal_date] = weights
