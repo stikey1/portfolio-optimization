@@ -1,7 +1,6 @@
 """Module 4: Simulate historical performance."""
 
 import pandas as pd
-import numpy as np
 from math_engine import compute_returns, compute_expected_returns, compute_covariance
 from optimizer import maximize_sharpe_ratio
 
