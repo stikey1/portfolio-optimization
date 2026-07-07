@@ -29,7 +29,8 @@ def single_asset_price_df(price_df):
 
 @pytest.fixture
 def backtest_result(price_df):
-    """Run the backtest once and share the result across tests that don't mutate it."""
+    """Run the backtest once at default params (max_weight=1.0, shrinkage=0.0)
+    and share the result across tests that don't care about those knobs."""
     return backtest(price_df)
 
 
@@ -60,13 +61,13 @@ def test_no_nan_in_returns(backtest_result):
     assert not backtest_result["returns"].isnull().any()
 
 
-
 def test_weights_sum_to_one(backtest_result):
     weight_sums = backtest_result["weights_history"].sum(axis=1)
     assert np.allclose(weight_sums, 1.0, atol=1e-4)
 
 
 def test_weights_within_bounds(backtest_result):
+    # Default max_weight=1.0 here, so bounds are the trivial [0,1] case.
     weights = backtest_result["weights_history"]
     assert (weights >= -1e-6).all().all()
     assert (weights <= 1 + 1e-6).all().all()
@@ -75,15 +76,19 @@ def test_weights_within_bounds(backtest_result):
 def test_weights_columns_match_tickers(backtest_result, price_df):
     assert set(backtest_result["weights_history"].columns) == set(price_df.columns)
 
+
 def test_insufficient_history_produces_no_returns(short_price_df):
     result = backtest(short_price_df, lookback_days=252)
     assert len(result["returns"]) == 0
 
 
 def test_single_asset_weight_is_always_one(single_asset_price_df):
-    result = backtest(single_asset_price_df)
+    # max_weight must be explicitly 1.0 here -- a tighter cap makes the
+    # sum(w)=1 constraint infeasible when there's only one asset to hold.
+    result = backtest(single_asset_price_df, max_weight=1.0)
     if len(result["weights_history"]) > 0:
         assert np.allclose(result["weights_history"].iloc[:, 0], 1.0, atol=1e-4)
+
 
 def test_no_lookahead_bias(price_df):
     cutoff = price_df.index[300]
@@ -99,3 +104,46 @@ def test_no_lookahead_bias(price_df):
     pre_cutoff_corrupted = result_corrupted["returns"].loc[:cutoff]
 
     pd.testing.assert_series_equal(pre_cutoff_original, pre_cutoff_corrupted)
+
+
+# --- New tests: bounds and shrinkage actually do something ---
+
+def test_max_weight_is_respected(price_df):
+    """No single position should ever exceed max_weight, given enough
+    assets that the cap is actually feasible (5 assets, cap=0.4 -> feasible
+    since 5*0.4=2.0 >= 1.0)."""
+    result = backtest(price_df, max_weight=0.4)
+    weights = result["weights_history"]
+    assert (weights <= 0.4 + 1e-4).all().all()
+
+
+def test_max_weight_below_feasibility_threshold_still_sums_near_one(price_df):
+    """Sanity check: even with a tight cap, SLSQP should still find a
+    feasible solution (5 assets, cap=0.3 -> max total = 1.5, still feasible)
+    and weights should still sum to ~1."""
+    result = backtest(price_df, max_weight=0.3)
+    weight_sums = result["weights_history"].sum(axis=1)
+    assert np.allclose(weight_sums, 1.0, atol=1e-3)
+
+
+def test_full_shrinkage_reduces_weight_dispersion(price_df):
+    """As shrinkage -> 1, every asset's expected return collapses toward
+    the same grand-mean value, so the optimizer should rely increasingly
+    on the covariance structure alone -- weights across rebalances should
+    show less month-to-month variance than the unshrunk (shrinkage=0) case.
+ 
+    max_weight is held constant across both runs and deliberately capped
+    below 1.0 -- without a cap, near-tied mu estimates at high shrinkage
+    let the optimizer still snap to fully concentrated corner solutions,
+    with the "winner" decided by numerical noise rather than signal. That
+    makes weights MORE erratic at high shrinkage, not less, and confounds
+    what this test is actually trying to isolate.
+    """
+    result_raw = backtest(price_df, shrinkage=0.0, max_weight=0.4)
+    result_shrunk = backtest(price_df, shrinkage=0.9, max_weight=0.4)
+ 
+    raw_std = result_raw["weights_history"].std().mean()
+    shrunk_std = result_shrunk["weights_history"].std().mean()
+ 
+    assert shrunk_std <= raw_std
+ 
