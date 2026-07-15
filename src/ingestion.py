@@ -23,14 +23,27 @@ class YFinanceSource(DataSource):
     def fetch(self, tickers: list[str], start: date, end: date) -> pd.DataFrame:
         for attempt in range(3):
             try:
-                data = yf.download(tickers, start=start, end=end, auto_adjust=False)["Adj Close"]
-                if data.empty:
-                     raise ValueError("No data fetched. Check tickers and date range.")
+                raw = yf.download(
+                    tickers,
+                    start=start,
+                    end=end,
+                    auto_adjust=False,
+                )
+                if raw.empty:
+                    raise ValueError("No data fetched.")
+
+                # extract adjusted close prices
+                if isinstance(raw.columns, pd.MultiIndex):
+                    data = raw.xs("Adj Close", axis=1, level="Price")
+                else:
+                    data = raw[["Adj Close"]]
+                
                 return data
-            except Exception:
-                 if attempt == 2:   # last attempt, re-raise exception
-                      raise
-                 time.sleep(2 ** attempt)  # exponential backoff
+            except Exception as e:
+                print(f"[YFinanceSource] attempt {attempt+1} failed: {e!r}")
+                if attempt == 2:   # last attempt, re-raise exception
+                    raise
+                time.sleep(2 ** attempt)  # exponential backoff
                  
 
 class AlphaVantageSource(DataSource):
