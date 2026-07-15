@@ -1,9 +1,9 @@
 """Streamlit dashboard for portfolio optimization."""
 from pathlib import Path
 import streamlit as st
-import yfinance as yf
+# import yfinance as yf
 import pandas as pd
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from zoneinfo import ZoneInfo
 import exchange_calendars as xcals
 from src.tickers import load_available_tickers
