@@ -5,11 +5,23 @@ import pandas as pd
 
 # dashboard dropdown of available tickers
 # (separate from cached parquet data)
-def load_available_tickers(path: str | Path = "data/ticker_universe.csv") -> list[str]:
-    path = Path(__file__).parent.parent / "data" / "tickers.csv"
+def load_available_tickers(path: str | Path = "data/tickers.csv") -> list[str]:
+    path = Path(__file__).parent.parent / path
     if not path.exists():
         raise FileNotFoundError(
             f"No ticker universe file found at {path}. "
             f"Create it with a single 'ticker' column."
         )
-    return pd.read_csv(path)["ticker"].tolist()
+    tickers = (
+        pd.read_csv(path)["ticker"]
+        .dropna()
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .tolist()
+    )
+
+    if not tickers:
+        raise ValueError(f"No tickers found in {path}.")
+
+    return tickers
