@@ -12,6 +12,10 @@ from scipy.optimize import minimize
 
 # goal: minimize the neg sharpe_ratio, subject to sum(weight) = 1 and weight >= 0
 
+# ----------------------------------
+# Portfolio Statistics 
+# ----------------------------------
+
 def portfolio_return(weights: np.ndarray, expected_returns: np.ndarray) -> float:
     # expected returns = mu, weights = w
     return weights @ expected_returns
@@ -21,10 +25,29 @@ def portfolio_variance(weights: np.ndarray, cov_matrix: np.ndarray) -> float:
     return weights.T @ cov_matrix @ weights
 
 def sharpe_ratio(weights : np.ndarray, expected_returns: np.ndarray, cov_matrix: np.ndarray, risk_free_rate: float = 0.0) -> float:
+    """ Returns earned per unit of risk """
     numerator = portfolio_return(weights, expected_returns) - risk_free_rate
     denominator = np.sqrt(portfolio_variance(weights, cov_matrix))
     return numerator / denominator if denominator != 0 else 0.0
 
+# ----------------------------------
+# Estimation
+# ----------------------------------
+
+def shrink_expected_returns(expected_returns: pd.Series, shrinkage: float = 0.5) -> pd.Series:
+    """Pull noisy per-asset return estimates toward the average.
+    shrinkage=0 -> no shrinkage (raw estimates). shrinkage=1 -> full shrinkage
+    (every asset gets the same return estimate, i.e. mu has zero effect).
+    """
+    grand_mean = expected_returns.mean()
+    return expected_returns * (1 - shrinkage) + grand_mean * shrinkage
+
+# ----------------------------------
+# Optimization
+# maximum sharpe: best risk-adjusted
+# GMV: least risky
+# equal weight: even split
+# ----------------------------------
 def maximize_sharpe_ratio(
     expected_returns: pd.Series,
     cov_matrix: pd.DataFrame,
@@ -73,10 +96,18 @@ def minimize_variance(expected_returns: pd.Series, cov_matrix: pd.DataFrame,
     result = minimize(variance, x0, method="SLSQP", bounds=bounds, constraints=constraints)
     return pd.Series(result.x, index=tickers, name="weight")
 
+def equal_weight_portfolio(expected_returns: pd.Series) -> pd.Series:
+    n = len(expected_returns)
+    return pd.Series(
+        np.ones(n) / n,
+        index=expected_returns.index,
+        name="weight",
+    )
 
-
-
-
+# ----------------------------------
+# Frontier Generation
+# efficient frontier: least risky way to achieve target return
+# ----------------------------------
 def efficient_frontier(expected_returns: pd.Series, cov_matrix: pd.DataFrame,
                         n_points: int = 50) -> pd.DataFrame:
     """Trace the efficient frontier by minimizing variance across a range
@@ -103,10 +134,3 @@ def efficient_frontier(expected_returns: pd.Series, cov_matrix: pd.DataFrame,
 
     return pd.DataFrame(records)
 
-def shrink_expected_returns(expected_returns: pd.Series, shrinkage: float = 0.5) -> pd.Series:
-    """Pull noisy per-asset return estimates toward the average.
-    shrinkage=0 -> no shrinkage (raw estimates). shrinkage=1 -> full shrinkage
-    (every asset gets the same return estimate, i.e. mu has zero effect).
-    """
-    grand_mean = expected_returns.mean()
-    return expected_returns * (1 - shrinkage) + grand_mean * shrinkage
