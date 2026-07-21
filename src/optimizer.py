@@ -134,10 +134,4 @@ def efficient_frontier(expected_returns: pd.Series, cov_matrix: pd.DataFrame,
 
     return pd.DataFrame(records)
 
-def shrink_expected_returns(expected_returns: pd.Series, shrinkage: float = 0.5) -> pd.Series:
-    """Pull noisy per-asset return estimates toward the average.
-    shrinkage=0 -> no shrinkage (raw estimates). shrinkage=1 -> full shrinkage
-    (every asset gets the same return estimate, i.e. mu has zero effect).
-    """
-    grand_mean = expected_returns.mean()
-    return expected_returns * (1 - shrinkage) + grand_mean * shrinkage
+
