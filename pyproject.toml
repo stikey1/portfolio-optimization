@@ -3,7 +3,7 @@ name = "portfolio-optimization"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
-    "yfinance==0.2.40",
+    "yfinance>=0.2.40",
     "pandas==2.2.2",
     "numpy==1.26.4",
     "scipy>=1.13.0",

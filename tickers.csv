@@ -1,0 +1,60 @@
+ticker,name,sector
+AAPL,Apple Inc.,Technology
+MSFT,Microsoft Corp.,Technology
+GOOGL,Alphabet Inc. (Class A),Technology
+AMZN,Amazon.com Inc.,Consumer Discretionary
+NVDA,NVIDIA Corp.,Technology
+META,Meta Platforms Inc.,Technology
+TSLA,Tesla Inc.,Consumer Discretionary
+BRK-B,Berkshire Hathaway (Class B),Financials
+JPM,JPMorgan Chase & Co.,Financials
+V,Visa Inc.,Financials
+UNH,UnitedHealth Group,Healthcare
+JNJ,Johnson & Johnson,Healthcare
+WMT,Walmart Inc.,Consumer Staples
+PG,Procter & Gamble,Consumer Staples
+MA,Mastercard Inc.,Financials
+HD,Home Depot Inc.,Consumer Discretionary
+DIS,Walt Disney Co.,Communication Services
+BAC,Bank of America Corp.,Financials
+XOM,Exxon Mobil Corp.,Energy
+CVX,Chevron Corp.,Energy
+KO,Coca-Cola Co.,Consumer Staples
+PEP,PepsiCo Inc.,Consumer Staples
+COST,Costco Wholesale Corp.,Consumer Staples
+ABBV,AbbVie Inc.,Healthcare
+MRK,Merck & Co.,Healthcare
+AVGO,Broadcom Inc.,Technology
+ADBE,Adobe Inc.,Technology
+CRM,Salesforce Inc.,Technology
+NFLX,Netflix Inc.,Communication Services
+AMD,Advanced Micro Devices,Technology
+INTC,Intel Corp.,Technology
+CSCO,Cisco Systems Inc.,Technology
+ORCL,Oracle Corp.,Technology
+IBM,International Business Machines,Technology
+QCOM,Qualcomm Inc.,Technology
+TXN,Texas Instruments,Technology
+PYPL,PayPal Holdings,Financials
+NKE,Nike Inc.,Consumer Discretionary
+MCD,McDonald's Corp.,Consumer Discretionary
+SBUX,Starbucks Corp.,Consumer Discretionary
+LOW,Lowe's Companies,Consumer Discretionary
+UPS,United Parcel Service,Industrials
+BA,Boeing Co.,Industrials
+CAT,Caterpillar Inc.,Industrials
+GE,General Electric Co.,Industrials
+HON,Honeywell International,Industrials
+LMT,Lockheed Martin Corp.,Industrials
+GS,Goldman Sachs Group,Financials
+MS,Morgan Stanley,Financials
+WFC,Wells Fargo & Co.,Financials
+AXP,American Express Co.,Financials
+SPY,SPDR S&P 500 ETF Trust,ETF
+QQQ,Invesco QQQ Trust,ETF
+VOO,Vanguard S&P 500 ETF,ETF
+VTI,Vanguard Total Stock Market ETF,ETF
+IWM,iShares Russell 2000 ETF,ETF
+DIA,SPDR Dow Jones Industrial Average ETF,ETF
+GLD,SPDR Gold Shares,ETF
+TLT,iShares 20+ Year Treasury Bond ETF,ETF
