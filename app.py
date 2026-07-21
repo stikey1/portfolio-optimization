@@ -12,7 +12,7 @@ from src.ingestion import YFinanceSource, run_ingestion, load_data, TickerNotCac
 from src.math_engine import compute_returns, compute_expected_returns, compute_covariance
 from src.optimizer import maximize_sharpe_ratio
 from src.backtester import backtest
-from src.visualization import plot_efficient_frontier, plot_equity_curve
+from src.visualization import plot_efficient_frontier, plot_equity_curve, weights_bar_graph
 
 st.set_page_config(page_title="Portfolio Optimizer", layout="wide")
 
@@ -52,7 +52,14 @@ with st.sidebar.form("portfolio_inputs"):
     lookback_years = st.slider("select # of years", 1, 10, 3)
 
     st.subheader("Risk-free rate")
-    risk_free_rate = st.number_input("default is 2%", value=0.02, step=0.005)
+    risk_free_rate = st.number_input(
+        "Risk-free rate (decimal)",
+        value=0.02,
+        min_value=-1.0,   # allows down to -100%
+        max_value=1.0,
+        step=0.005,
+        format="%.3f"
+    )
     submitted = st.form_submit_button("Run Optimization")
 
 # ----------------------------------
@@ -105,6 +112,8 @@ if submitted:
     sigma = compute_covariance(simple_returns)
     weights = maximize_sharpe_ratio(mu, sigma, risk_free_rate)  # whatever your optimizer's entrypoint is
     
+    print(f"weights: {weights}")
+    print(f"weights sum: {weights.sum()}")
     # --- backtest ---
     rolling_window_years = max(1, lookback_years - 2)
     backtest_result = backtest(prices, risk_free_rate, rolling_window_years * 252)
@@ -113,11 +122,9 @@ if submitted:
     # --- benchmark (equal-weight, rebased to strategy's start date) ---
     strategy_cum = backtest_result["cumulative_value"]
     if not strategy_cum.empty:
-        strategy_start = strategy_cum.index[0]
-        equal_weight_returns = simple_returns.mean(axis=1)
-        equal_weight_cum_full = (1 + equal_weight_returns).cumprod()
-        equal_weight_cum = equal_weight_cum_full / equal_weight_cum_full.loc[strategy_start]
-        equal_weight_cum = equal_weight_cum.loc[strategy_start:]
+        strategy_returns = backtest_result["returns"]
+        equal_weight_returns = simple_returns.mean(axis=1).loc[strategy_returns.index]
+        equal_weight_cum = (1 + equal_weight_returns).cumprod()
         benchmarks = {"Equal-Weight": equal_weight_cum}
     else:
         benchmarks = {}
@@ -135,6 +142,10 @@ if submitted:
     if "results" in st.session_state:
         r = st.session_state["results"]
 
+        print(r["backtest"]["cumulative_value"].equals(
+                r["benchmarks"]["Equal-Weight"]
+            ))
+
         # --- visualizations ---
         st.header("Efficient Frontier")
         st.plotly_chart(
@@ -147,5 +158,13 @@ if submitted:
         st.subheader("Backtest: Strategy vs. Benchmark")
         st.plotly_chart(
             plot_equity_curve(r["backtest"]["cumulative_value"], r["benchmarks"]),
+            width="stretch",
+        )
+
+        st.divider()
+
+        st.subheader("Weights Distributions")
+        st.plotly_chart(
+            weights_bar_graph(r["weights"]),
             width="stretch",
         )
