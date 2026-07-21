@@ -139,7 +139,7 @@ if submitted:
         st.header("Efficient Frontier")
         st.plotly_chart(
             plot_efficient_frontier(r["mu"], r["sigma"], risk_free_rate=risk_free_rate),
-            use_container_width=True,
+            width="stretch",
         )
 
         st.divider()
@@ -147,5 +147,5 @@ if submitted:
         st.subheader("Backtest: Strategy vs. Benchmark")
         st.plotly_chart(
             plot_equity_curve(r["backtest"]["cumulative_value"], r["benchmarks"]),
-            use_container_width=True,
+            width="stretch",
         )
