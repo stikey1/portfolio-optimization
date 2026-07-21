@@ -124,7 +124,43 @@ def plot_equity_curve(
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
     return fig
+def weights_bar_graph(
+    weights: pd.Series,
+    title: str = "Portfolio Weights",
+    min_weight_display: float = 0.001,
+) -> go.Figure:
+    """Horizontal bar chart of portfolio weights by ticker.
 
+    Args:
+        weights: Series indexed by ticker (as returned by
+            maximize_sharpe_ratio / minimize_variance).
+        title: Chart title.
+        min_weight_display: Weights below this (in absolute value) are
+            dropped from the chart to avoid clutter from near-zero
+            allocations sitting at the SLSQP bound.
+    """
+    w = weights[weights.values >= min_weight_display].sort_values(ascending=True)
+
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=w.values,
+        y=w.index,
+        orientation="h",
+        marker=dict(color="steelblue"),
+        hovertemplate="%{y}: %{x:.2%}<extra></extra>",
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="Weight",
+        yaxis_title="Ticker",
+        xaxis_tickformat=".0%",
+        template="plotly_white",
+        showlegend=False,
+        margin=dict(l=100),
+    )
+    return fig
 
 if __name__ == "__main__":
     from src.mock_data import generate_mock_prices
@@ -156,3 +192,7 @@ if __name__ == "__main__":
 
     fig2 = plot_equity_curve(result["cumulative_value"], {"Equal-Weight": equal_weight_cum})
     fig2.show()
+
+    ms_weights = maximize_sharpe_ratio(mu, sigma, risk_free_rate=0.04)
+    fig3 = weights_bar_graph(ms_weights, title="Max Sharpe Portfolio Weights")
+    fig3.show()

@@ -134,3 +134,4 @@ def efficient_frontier(expected_returns: pd.Series, cov_matrix: pd.DataFrame,
 
     return pd.DataFrame(records)
 
+
