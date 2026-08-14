@@ -16,19 +16,22 @@ from src.visualization import plot_efficient_frontier, plot_equity_curve, weight
 
 st.set_page_config(page_title="Portfolio Optimizer", layout="wide")
 
-st.title("Portfolio Optimizer")
-st.markdown(
-    """
-    Interactive dashboard for mean-variance portfolio optimization.
+if "has_run" not in st.session_state:
+    st.session_state["has_run"] = False
 
-    **Modules**
-    - **Ingestion** — fetch and clean stock data
-    - **Math Engine** — returns and covariance
-    - **Optimizer** — optimal weights
-    - **Backtester** — historical simulation
-    - **Analytics** — Sharpe ratio, max drawdown
-    """
-)
+st.title("Portfolio Optimizer")
+# st.markdown(
+#     """
+#     Interactive dashboard for mean-variance portfolio optimization.
+
+#     **Modules**
+#     - **Ingestion** — fetch and clean stock data
+#     - **Math Engine** — returns and covariance
+#     - **Optimizer** — optimal weights
+#     - **Backtester** — historical simulation
+#     - **Analytics** — Sharpe ratio, max drawdown
+#     """
+# )
 # ----------------------------------
 # sidebar inputs 
 with st.sidebar.form("portfolio_inputs"):
@@ -79,7 +82,7 @@ def get_price_data(tickers: tuple[str, ...], start: date, end: date) -> pd.DataF
         )
 
 # refresh cached data if user clicks button
-if st.sidebar.button("Refresh data"):
+if st.sidebar.button("Refresh for latest market data"):
     get_price_data.clear()  # clears this function's Streamlit cache
     st.rerun()
 
@@ -100,6 +103,8 @@ start = xnys.sessions_window(end, -lookback_days + 1)[0]
 # ----------------------------------
 # main app logic
 if submitted:
+    st.session_state["has_run"] = True
+
     print("Tickers:", selected_tickers)
     print("Start:", start)
     print("End:", end)
@@ -139,32 +144,90 @@ if submitted:
         "risk_free_rate": risk_free_rate,
     }
 
-    if "results" in st.session_state:
-        r = st.session_state["results"]
+if st.session_state.get("has_run", False):
+    r = st.session_state["results"]
 
-        print(r["backtest"]["cumulative_value"].equals(
-                r["benchmarks"]["Equal-Weight"]
-            ))
+    print(r["backtest"]["cumulative_value"].equals(
+            r["benchmarks"]["Equal-Weight"]
+        ))
 
-        # --- visualizations ---
-        st.header("Efficient Frontier")
-        st.plotly_chart(
-            plot_efficient_frontier(r["mu"], r["sigma"], risk_free_rate=risk_free_rate),
-            width="stretch",
+    weight_dist_tab, ef_tab, backtest_tab = st.tabs(["Portfolio Weights", "Efficient Frontier", "Backtest"])
+
+    # --- visualizations ---
+    with weight_dist_tab:
+        st.subheader("Portfolio Weights")
+        st.caption(
+            "Portfolio allocation across the selected assets, with larger bars "
+            "representing a greater share of the overall portfolio."
         )
-
-        st.divider()
-
-        st.subheader("Backtest: Strategy vs. Benchmark")
-        st.plotly_chart(
-            plot_equity_curve(r["backtest"]["cumulative_value"], r["benchmarks"]),
-            width="stretch",
-        )
-
-        st.divider()
-
-        st.subheader("Weights Distributions")
         st.plotly_chart(
             weights_bar_graph(r["weights"]),
             width="stretch",
         )
+    with ef_tab:
+        st.header("Efficient Frontier")
+        st.caption(
+            "The relationship between expected return and portfolio risk. "
+            "The frontier represents the most efficient portfolios, while the "
+            "Global Minimum Variance and Max Sharpe portfolios highlight two "
+            "key points along the risk-return trade-off."
+        )
+        st.plotly_chart(
+            plot_efficient_frontier(r["mu"], r["sigma"], risk_free_rate=risk_free_rate),
+            width="stretch",
+        )
+    with backtest_tab:
+        st.subheader("Backtest: Strategy vs. Benchmark")
+        st.caption(
+            "Historical growth of a $1 investment in the strategy compared "
+            "with the selected benchmarks over the backtest period. Higher "
+            "values indicate stronger cumulative performance."
+        )
+        st.plotly_chart(
+            plot_equity_curve(r["backtest"]["cumulative_value"], r["benchmarks"]),
+            width="stretch",
+        )
+else:
+    st.header("Welcome")
+    st.write(
+        "This dashboard helps you explore portfolio optimization using "
+        "historical market data. Configure your portfolio using the sidebar "
+        "and run the optimization to view the results."
+    )
+
+    st.subheader("Getting Started")
+
+    st.markdown(
+        """
+        **1. Select your assets**  
+        Choose from the available tickers or enter additional tickers manually.
+
+        **2. Choose a lookback period**  
+        Select how many years of historical data should be used.
+
+        **3. Set the risk-free rate**  
+        Enter the annual rate used in the Sharpe ratio calculation.
+
+        **4. Run the optimization**  
+        Click **Run Optimization** in the sidebar.
+        """
+    )
+
+    st.subheader("What You'll See")
+
+    st.markdown(
+        """
+        Once the optimization is complete, the results will be organized into:
+
+        - **Portfolio Weights** — recommended allocation across your selected assets.
+        - **Efficient Frontier** — the risk-return trade-off across portfolios.
+        - **Backtest** — historical strategy performance compared with a benchmark.
+        """
+    )
+
+    st.info(
+        "Configure your portfolio using the sidebar, then click "
+        "**Run Optimization** to get started."
+    )
+
+        
