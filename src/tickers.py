@@ -1,7 +1,9 @@
 """Module 0: Provide the curated list of tickers available for selection in the UI."""
 
 from pathlib import Path
+
 import pandas as pd
+
 
 # dashboard dropdown of available tickers
 # (separate from cached parquet data)

@@ -1,11 +1,12 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
+
 from src.optimizer import (
+    maximize_sharpe_ratio,
     portfolio_return,
     portfolio_variance,
     sharpe_ratio,
-    maximize_sharpe_ratio,
 )
 
 # ── Fixtures ─────────────────────────────────────────────────────────────────

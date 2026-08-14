@@ -14,7 +14,7 @@ import pandas as pd
 
 
 def generate_mock_prices(
-    tickers: list[str] = None,
+    tickers: list[str] | None = None,
     n_days: int = 504,
     start_date: str = "2022-01-03",
     start_price: float = 100.0,

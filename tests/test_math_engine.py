@@ -2,7 +2,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.math_engine import compute_covariance, compute_expected_returns, compute_returns
+from src.math_engine import (
+    compute_covariance,
+    compute_expected_returns,
+    compute_returns,
+)
 
 
 @pytest.fixture

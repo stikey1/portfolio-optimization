@@ -1,11 +1,13 @@
 """Module 1: Fetch and clean raw stock data."""
 
-from pathlib import Path
-import pandas as pd
+import time
 from abc import ABC, abstractmethod
 from datetime import date
-import time
+from pathlib import Path
+
+import pandas as pd
 import yfinance as yf
+
 
 # Custom exceptions
 class TickerNotCachedError(Exception):
@@ -39,7 +41,6 @@ class DataSource(ABC):
             DataFrame indexed by date, with one column per ticker.
 
         """
-        pass
 
 # data sources
 class YFinanceSource(DataSource):
@@ -118,7 +119,7 @@ class AlphaVantageSource(DataSource):
             DataFrame indexed by date, with one column per ticker.
 
         """
-        ...  # retry logic can live here, or be factored into a helper
+        # retry logic can live here, or be factored into a helper
 
 # ------------ ---------------------------------------- --------------
 # cleans data (source-agnostic)

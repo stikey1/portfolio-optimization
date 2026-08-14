@@ -1,12 +1,14 @@
-import pandas as pd
 import numpy as np
-# import pytest
+import pandas as pd
+
 from src.analytics import (
-    cumulative_returns,
     annualized_sharpe_ratio,
+    annualized_volatility,
+    cumulative_returns,
     max_drawdown,
-    annualized_volatility
-) 
+)
+
+
 # cumulative_returns ----------------------------------
 class TestCumulativeReturns:
     def test_cumulative_returns_positive_returns(self):

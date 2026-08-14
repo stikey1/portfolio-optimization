@@ -1,7 +1,12 @@
 """Module 4: Simulate historical performance."""
 
 import pandas as pd
-from src.math_engine import compute_returns, compute_expected_returns, compute_covariance
+
+from src.math_engine import (
+    compute_covariance,
+    compute_expected_returns,
+    compute_returns,
+)
 from src.optimizer import maximize_sharpe_ratio, shrink_expected_returns
 
 

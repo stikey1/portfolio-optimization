@@ -5,11 +5,11 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from src.optimizer import (
-    portfolio_return,
-    portfolio_variance,
+    efficient_frontier,
     maximize_sharpe_ratio,
     minimize_variance,
-    efficient_frontier,
+    portfolio_return,
+    portfolio_variance,
 )
 
 
@@ -61,7 +61,7 @@ def plot_efficient_frontier(
         x=frontier["volatility"],
         y=frontier["target_return"],
         mode="lines",
-        line=dict(color="black", width=2),
+        line={"color": "black", "width": 2},
         name="Efficient Frontier",
         hovertemplate="Vol: %{x:.2%}<br>Return: %{y:.2%}<extra></extra>",
     ))
@@ -73,7 +73,7 @@ def plot_efficient_frontier(
     cml_y = [risk_free_rate, risk_free_rate + slope * ms_vol * 1.3]
     fig.add_trace(go.Scatter(
         x=cml_x, y=cml_y, mode="lines",
-        line=dict(color="gray", dash="dash", width=1.5),
+        line={"color": "gray", "dash": "dash", "width": 1.5},
         name="Capital Market Line",
     ))
 
@@ -82,7 +82,7 @@ def plot_efficient_frontier(
     fig.add_trace(go.Scatter(
         x=[gmv_vol], y=[gmv_ret],
         mode="markers",
-        marker=dict(size=16, color="blue", symbol="star"),
+        marker={"size": 16, "color": "blue", "symbol": "star"},
         name="Global Min Variance",
         hovertemplate="GMV<br>Vol: %{x:.2%}<br>Return: %{y:.2%}<extra></extra>",
     ))
@@ -91,7 +91,7 @@ def plot_efficient_frontier(
     fig.add_trace(go.Scatter(
         x=[ms_vol], y=[ms_ret],
         mode="markers",
-        marker=dict(size=16, color="red", symbol="star"),
+        marker={"size": 16, "color": "red", "symbol": "star"},
         name="Max Sharpe (Tangency)",
         hovertemplate="Max Sharpe<br>Vol: %{x:.2%}<br>Return: %{y:.2%}<extra></extra>",
     ))
@@ -137,7 +137,7 @@ def plot_equity_curve(
         x=strategy_cumulative.index,
         y=strategy_cumulative.values,
         mode="lines",
-        line=dict(color="crimson", width=2.5),
+        line={"color": "crimson", "width": 2.5},
         name="Max Sharpe Strategy",
         hovertemplate="%{x|%Y-%m-%d}<br>Value: %{y:.2f}<extra></extra>",
     ))
@@ -148,7 +148,7 @@ def plot_equity_curve(
             x=series.index,
             y=series.values,
             mode="lines",
-            line=dict(color=color, width=1.5, dash="dot"),
+            line={"color": color, "width": 1.5, "dash": "dot"},
             name=label,
             hovertemplate="%{x|%Y-%m-%d}<br>Value: %{y:.2f}<extra></extra>",
         ))
@@ -159,7 +159,7 @@ def plot_equity_curve(
         yaxis_title="Growth of $1",
         template="plotly_white",
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1},
     )
     return fig
 def weights_bar_graph(
@@ -186,7 +186,7 @@ def weights_bar_graph(
         x=w.values,
         y=w.index,
         orientation="h",
-        marker=dict(color="steelblue"),
+        marker={"color": "steelblue"},
         hovertemplate="%{y}: %{x:.2%}<extra></extra>",
     ))
 
@@ -197,14 +197,18 @@ def weights_bar_graph(
         xaxis_tickformat=".0%",
         template="plotly_white",
         showlegend=False,
-        margin=dict(l=100),
+        margin={"l": 100},
     )
     return fig
 
 if __name__ == "__main__":
-    from src.mock_data import generate_mock_prices
-    from src.math_engine import compute_returns, compute_expected_returns, compute_covariance
     from src.backtester import backtest
+    from src.math_engine import (
+        compute_covariance,
+        compute_expected_returns,
+        compute_returns,
+    )
+    from src.mock_data import generate_mock_prices
 
     # Swap this line for src.ingestion.load_data(...) once you're ready
     # to test against real market data instead of synthetic GBM paths.

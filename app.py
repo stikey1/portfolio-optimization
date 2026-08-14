@@ -1,17 +1,27 @@
 """Streamlit dashboard for portfolio optimization."""
-from pathlib import Path
-import streamlit as st
-# import yfinance as yf
-import pandas as pd
-from datetime import date, datetime
-from zoneinfo import ZoneInfo
-import exchange_calendars as xcals
-from src.tickers import load_available_tickers
 
-from src.ingestion import YFinanceSource, run_ingestion, load_data, TickerNotCachedError
-from src.math_engine import compute_returns, compute_expected_returns, compute_covariance
-from src.optimizer import maximize_sharpe_ratio
+from datetime import date, datetime
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+import exchange_calendars as xcals
+import pandas as pd
+import streamlit as st
+
 from src.backtester import backtest
+from src.ingestion import (
+    TickerNotCachedError,
+    YFinanceSource,
+    load_data,
+    run_ingestion,
+)
+from src.math_engine import (
+    compute_covariance,
+    compute_expected_returns,
+    compute_returns,
+)
+from src.optimizer import maximize_sharpe_ratio
+from src.tickers import load_available_tickers
 from src.visualization import plot_efficient_frontier, plot_equity_curve
 
 st.set_page_config(page_title="Portfolio Optimizer", layout="wide")

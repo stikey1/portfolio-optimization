@@ -1,21 +1,23 @@
 """Tests for Module 1 (ingestion.py): fetching
 and cleaning raw stock data."""
 
+from datetime import date
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
+
 from src.ingestion import (
-    YFinanceSource,
     AlphaVantageSource,
-    clean_data,
-    save_to_parquet,
-    load_data,
     TickerNotCachedError,
+    YFinanceSource,
+    clean_data,
+    load_data,
     run_ingestion,
+    save_to_parquet,
 )
-from datetime import date
-from unittest.mock import patch, MagicMock
-from pathlib import Path
+
 
 def make_mock_yfinance_data():
     """Plain helper returning mock yf.download response (multi-index columns)."""
