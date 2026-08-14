@@ -19,6 +19,25 @@ def plot_efficient_frontier(
     risk_free_rate: float = 0.0,
     n_points: int = 50,
 ) -> go.Figure:
+    """Plot the efficient frontier with key portfolios highlighted.
+    
+    Visualizes the optimal risk-return tradeoff curve (efficient frontier) along
+    with the Global Minimum Variance (GMV) portfolio, the maximum Sharpe ratio
+    (tangency) portfolio, and the Capital Market Line. This chart shows all
+    feasible risk-return combinations and highlights the best choices.
+    
+    Args:
+        expected_returns (pd.Series): Expected return per asset, indexed by ticker.
+        cov_matrix (pd.DataFrame): Covariance matrix of asset returns.
+        risk_free_rate (float): Annualized risk-free rate; used to compute the
+            Capital Market Line (default 0.0).
+        n_points (int): Number of points to trace along the frontier; higher values
+            give a smoother curve (default 50).
+    
+    Returns:
+        go.Figure: Plotly figure object with the frontier, special portfolios,
+            and Capital Market Line rendered as interactive chart.
+    """
     # The actual frontier boundary, traced point-by-point via constrained
     # minimize_variance(target_return=...) -- not an approximation.
     frontier = efficient_frontier(expected_returns, cov_matrix, n_points=n_points)
@@ -93,6 +112,23 @@ def plot_equity_curve(
     benchmarks: dict[str, pd.Series],
     title: str = "Backtest: Strategy vs. Benchmark",
 ) -> go.Figure:
+    """Plot strategy cumulative value against one or more benchmark curves.
+    
+    Shows the growth of $1 invested in the strategy and benchmarks over time.
+    This is the classic performance visualization for backtests, allowing
+    visual comparison of cumulative returns and drawdown periods across strategies.
+    
+    Args:
+        strategy_cumulative (pd.Series): Cumulative portfolio value over time,
+            indexed by date. Typically (1 + returns).cumprod().
+        benchmarks (dict[str, pd.Series]): Dictionary mapping benchmark names to
+            their cumulative value series, each indexed by date.
+        title (str): Chart title (default "Backtest: Strategy vs. Benchmark").
+    
+    Returns:
+        go.Figure: Plotly figure object with the strategy and benchmarks rendered
+            as overlaid line charts.
+    """
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(

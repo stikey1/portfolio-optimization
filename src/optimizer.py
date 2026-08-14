@@ -17,15 +17,56 @@ from scipy.optimize import minimize
 # ----------------------------------
 
 def portfolio_return(weights: np.ndarray, expected_returns: np.ndarray) -> float:
+    """Calculate the expected return of a portfolio.
+    
+    Computes the weighted average of individual asset returns. This is a
+    linear function of the weight vector.
+    
+    Args:
+        weights (np.ndarray): Portfolio weights (sum to 1). Shape (n_assets,).
+        expected_returns (np.ndarray): Expected return per asset. Shape (n_assets,).
+    
+    Returns:
+        float: Expected portfolio return as a decimal, e.g., 0.08 for 8%.
+    """
     # expected returns = mu, weights = w
     return weights @ expected_returns
 
 def portfolio_variance(weights: np.ndarray, cov_matrix: np.ndarray) -> float:
+    """Calculate the variance of portfolio returns.
+    
+    Computes the variance of the portfolio's returns as w^T * Sigma * w, where
+    w is the weight vector and Sigma is the covariance matrix of asset returns.
+    Portfolio variance captures both individual asset risks and correlations.
+    
+    Args:
+        weights (np.ndarray): Portfolio weights (sum to 1). Shape (n_assets,).
+        cov_matrix (np.ndarray): Covariance matrix of asset returns.
+            Shape (n_assets, n_assets).
+    
+    Returns:
+        float: Portfolio variance (variance of returns, not volatility).
+    """
     # covariance matrix = Sigma, weights = w
     return weights.T @ cov_matrix @ weights
 
 def sharpe_ratio(weights : np.ndarray, expected_returns: np.ndarray, cov_matrix: np.ndarray, risk_free_rate: float = 0.0) -> float:
-    """ Returns earned per unit of risk """
+    """Calculate the Sharpe ratio: excess return per unit of portfolio risk.
+    
+    The Sharpe ratio measures risk-adjusted return. It is the key metric optimized
+    by many portfolio construction strategies. Higher Sharpe ratios indicate better
+    returns relative to the risk taken.
+    
+    Args:
+        weights (np.ndarray): Portfolio weights (sum to 1). Shape (n_assets,).
+        expected_returns (np.ndarray): Expected return per asset. Shape (n_assets,).
+        cov_matrix (np.ndarray): Covariance matrix of asset returns.
+            Shape (n_assets, n_assets).
+        risk_free_rate (float): Annualized risk-free rate (default 0.0).
+    
+    Returns:
+        float: Sharpe ratio. Returns 0 if portfolio volatility is zero (edge case).
+    """
     numerator = portfolio_return(weights, expected_returns) - risk_free_rate
     denominator = np.sqrt(portfolio_variance(weights, cov_matrix))
     return numerator / denominator if denominator != 0 else 0.0
@@ -54,6 +95,24 @@ def maximize_sharpe_ratio(
     risk_free_rate: float = 0.0,
     max_weight: float = 1.0,
 ) -> pd.Series:
+    """Find portfolio weights that maximize the Sharpe ratio.
+    
+    Solves a constrained optimization problem to find the portfolio with the
+    highest risk-adjusted return (Sharpe ratio). This is often called the
+    tangency portfolio—the point where the Capital Market Line touches the
+    efficient frontier.
+    
+    Args:
+        expected_returns (pd.Series): Expected return per asset, indexed by ticker.
+        cov_matrix (pd.DataFrame): Covariance matrix of asset returns.
+        risk_free_rate (float): Annualized risk-free rate (default 0.0).
+        max_weight (float): Maximum weight for any single asset; 1.0 means no limit,
+            0.1 means max 10% per asset (default 1.0).
+    
+    Returns:
+        pd.Series: Optimal portfolio weights, indexed by ticker. Weights sum to 1
+            and respect the max_weight constraint. Returned with name='weight'.
+    """
     n = len(expected_returns)
     tickers = expected_returns.index
 
@@ -97,6 +156,20 @@ def minimize_variance(expected_returns: pd.Series, cov_matrix: pd.DataFrame,
     return pd.Series(result.x, index=tickers, name="weight")
 
 def equal_weight_portfolio(expected_returns: pd.Series) -> pd.Series:
+    """Create an equal-weight portfolio allocation.
+    
+    Allocates 1/n of the portfolio to each of n assets. This naive strategy
+    serves as a useful benchmark; surprisingly, it often performs competitively
+    against complex optimization approaches.
+    
+    Args:
+        expected_returns (pd.Series): Expected return per asset, indexed by ticker.
+            Only used to determine the number of assets and ticker names.
+    
+    Returns:
+        pd.Series: Equal weights (1/n for each asset), indexed by ticker.
+            Returned with name='weight'.
+    """
     n = len(expected_returns)
     return pd.Series(
         np.ones(n) / n,

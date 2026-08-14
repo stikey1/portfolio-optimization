@@ -9,11 +9,22 @@ import yfinance as yf
 
 # Custom exceptions
 class TickerNotCachedError(Exception):
-    pass
+    """Exception raised when requested ticker data is not cached.
+    
+    Raised by load_data() when one or more requested ticker symbols are not
+    present in the cached Parquet file. Suggests running run_ingestion() to
+    fetch the missing tickers first.
+    """
 
 # ----------------------------------
 # abstract base class for data sources
 class DataSource(ABC):
+    """Abstract base class for price data sources.
+    
+    Defines the interface that all data sources (Yahoo Finance, Alpha Vantage, etc.)
+    must implement. Subclasses handle the details of connecting to different APIs
+    and fetching adjusted close prices.
+    """
     @abstractmethod
     def fetch(self, tickers: list[str], start: date, end: date) -> pd.DataFrame:
         """Fetch raw price data for the given tickers and date range.
@@ -30,7 +41,13 @@ class DataSource(ABC):
 
 # data sources
 class YFinanceSource(DataSource):
-   def fetch(self, tickers: list[str], start: date, end: date) -> pd.DataFrame:
+    """DataSource implementation using Yahoo Finance for price data.
+    
+    Fetches adjusted close prices from Yahoo Finance using the yfinance library.
+    Includes automatic retry logic with exponential backoff to handle transient
+    API failures. Suitable for accessing US-listed stocks and major indices.
+    """
+    def fetch(self, tickers: list[str], start: date, end: date) -> pd.DataFrame:
         """Fetch adjusted close prices from Yahoo Finance, retry on failure.
 
         Retries up to 3 times with exponential backoff (1s, 2s, 4s) if the
@@ -76,6 +93,12 @@ class YFinanceSource(DataSource):
                  
 
 class AlphaVantageSource(DataSource):
+    """DataSource implementation using Alpha Vantage for price data.
+    
+    Fetches price data from Alpha Vantage API. Provides access to additional
+    data types and forex pairs beyond Yahoo Finance. Implementation is a
+    placeholder stub; not yet fully functional.
+    """
     def fetch(self, tickers: list[str], start: date, end: date) -> pd.DataFrame:
         """Fetch price data from Alpha Vantage.
 

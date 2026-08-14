@@ -12,6 +12,34 @@ def backtest(
     max_weight: float = 1.0,
     shrinkage: float = 0.0,
 ):
+    """Simulate historical portfolio performance using a rolling optimization strategy.
+    
+    Rebalances the portfolio at month-end dates using the maximum Sharpe ratio strategy.
+    For each rebalancing date, computes optimal weights from historical returns (lookback
+    window), then applies those weights to the next month's returns. This simulates a
+    realistic dynamic trading strategy where allocations respond to changing market conditions.
+    
+    Args:
+        prices (pd.DataFrame): Adjusted close prices indexed by date, one column per ticker.
+        risk_free_rate (float): Annualized risk-free rate for Sharpe ratio calculation
+            (default 0.0).
+        lookback_days (int): Number of historical trading days to use for each optimization;
+            use 252 for approximately one year of daily data (default 252).
+        max_weight (float): Maximum weight allowed for any single asset in the portfolio;
+            1.0 means no concentration limit, 0.1 means each asset capped at 10%
+            (default 1.0).
+        shrinkage (float): Shrinkage intensity for return estimates (0 = no shrinkage,
+            1 = all assets get equal return estimate); helps stabilize optimization
+            with limited data (default 0.0).
+    
+    Returns:
+        dict: A dictionary with the following keys:
+            - 'returns' (pd.Series): Monthly portfolio returns indexed by rebalance date.
+            - 'cumulative_value' (pd.Series): Cumulative portfolio value (starting at 1.0).
+            - 'weights_history' (pd.DataFrame): Portfolio weights at each rebalance date,
+              indexed by rebalance date with one column per ticker.
+              Returns an empty dict if insufficient data for any rebalance window.
+    """
     log_returns = compute_returns(prices, method="log")
     simple_returns = compute_returns(prices, method="simple")
 
