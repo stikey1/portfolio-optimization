@@ -23,6 +23,7 @@ def load_available_tickers(path: str | Path = "data/tickers.csv") -> list[str]:
     Raises:
         FileNotFoundError: If the CSV file does not exist at the specified path.
         ValueError: If the CSV file contains no valid tickers after filtering.
+
     """
     path = Path(__file__).parent.parent / path
     if not path.exists():

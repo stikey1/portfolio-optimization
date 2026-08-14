@@ -28,6 +28,7 @@ def portfolio_return(weights: np.ndarray, expected_returns: np.ndarray) -> float
     
     Returns:
         float: Expected portfolio return as a decimal, e.g., 0.08 for 8%.
+
     """
     # expected returns = mu, weights = w
     return weights @ expected_returns
@@ -46,6 +47,7 @@ def portfolio_variance(weights: np.ndarray, cov_matrix: np.ndarray) -> float:
     
     Returns:
         float: Portfolio variance (variance of returns, not volatility).
+
     """
     # covariance matrix = Sigma, weights = w
     return weights.T @ cov_matrix @ weights
@@ -66,6 +68,7 @@ def sharpe_ratio(weights : np.ndarray, expected_returns: np.ndarray, cov_matrix:
     
     Returns:
         float: Sharpe ratio. Returns 0 if portfolio volatility is zero (edge case).
+
     """
     numerator = portfolio_return(weights, expected_returns) - risk_free_rate
     denominator = np.sqrt(portfolio_variance(weights, cov_matrix))
@@ -77,6 +80,7 @@ def sharpe_ratio(weights : np.ndarray, expected_returns: np.ndarray, cov_matrix:
 
 def shrink_expected_returns(expected_returns: pd.Series, shrinkage: float = 0.5) -> pd.Series:
     """Pull noisy per-asset return estimates toward the average.
+
     shrinkage=0 -> no shrinkage (raw estimates). shrinkage=1 -> full shrinkage
     (every asset gets the same return estimate, i.e. mu has zero effect).
     """
@@ -112,6 +116,7 @@ def maximize_sharpe_ratio(
     Returns:
         pd.Series: Optimal portfolio weights, indexed by ticker. Weights sum to 1
             and respect the max_weight constraint. Returned with name='weight'.
+
     """
     n = len(expected_returns)
     tickers = expected_returns.index
@@ -169,6 +174,7 @@ def equal_weight_portfolio(expected_returns: pd.Series) -> pd.Series:
     Returns:
         pd.Series: Equal weights (1/n for each asset), indexed by ticker.
             Returned with name='weight'.
+
     """
     n = len(expected_returns)
     return pd.Series(
@@ -183,13 +189,16 @@ def equal_weight_portfolio(expected_returns: pd.Series) -> pd.Series:
 # ----------------------------------
 def efficient_frontier(expected_returns: pd.Series, cov_matrix: pd.DataFrame,
                         n_points: int = 50) -> pd.DataFrame:
-    """Trace the efficient frontier by minimizing variance across a range
-    of target returns.
+    """Trace the efficient frontier by minimizing variance across target returns.
+
+    This function finds the minimum-variance portfolio for each target return,
+    thereby tracing the entire efficient frontier curve.
 
     Returns:
         DataFrame with columns ['target_return', 'volatility'], one row
         per point on the frontier, plus a 'weights' column (Series per row)
         for handing off to the allocation chart if needed.
+
     """
     min_ret = expected_returns.min()
     max_ret = expected_returns.max()

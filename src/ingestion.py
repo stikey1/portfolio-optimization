@@ -25,6 +25,7 @@ class DataSource(ABC):
     must implement. Subclasses handle the details of connecting to different APIs
     and fetching adjusted close prices.
     """
+
     @abstractmethod
     def fetch(self, tickers: list[str], start: date, end: date) -> pd.DataFrame:
         """Fetch raw price data for the given tickers and date range.
@@ -36,6 +37,7 @@ class DataSource(ABC):
 
         Returns:
             DataFrame indexed by date, with one column per ticker.
+
         """
         pass
 
@@ -47,6 +49,7 @@ class YFinanceSource(DataSource):
     Includes automatic retry logic with exponential backoff to handle transient
     API failures. Suitable for accessing US-listed stocks and major indices.
     """
+
     def fetch(self, tickers: list[str], start: date, end: date) -> pd.DataFrame:
         """Fetch adjusted close prices from Yahoo Finance, retry on failure.
 
@@ -66,6 +69,7 @@ class YFinanceSource(DataSource):
             Exception: The underlying yfinance exception, re-raised if all
                 3 attempts fail.
             ValueError: If yfinance returns an empty DataFrame on every attempt.
+
         """
         for attempt in range(3):
             try:
@@ -99,6 +103,7 @@ class AlphaVantageSource(DataSource):
     data types and forex pairs beyond Yahoo Finance. Implementation is a
     placeholder stub; not yet fully functional.
     """
+
     def fetch(self, tickers: list[str], start: date, end: date) -> pd.DataFrame:
         """Fetch price data from Alpha Vantage.
 
@@ -111,6 +116,7 @@ class AlphaVantageSource(DataSource):
 
         Returns:
             DataFrame indexed by date, with one column per ticker.
+
         """
         ...  # retry logic can live here, or be factored into a helper
 
@@ -129,6 +135,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         Cleaned DataFrame with no fully-empty rows or columns.
+
     """
     # remove rows with all NaN values 
     cleaned = df.ffill().dropna(how="all")
@@ -147,6 +154,7 @@ def save_to_parquet(df: pd.DataFrame, path: str):
 
     Returns:
         None.
+
     """
     df.to_parquet(
          path, 
@@ -169,6 +177,7 @@ def load_data(tickers: list[str], data_dir: Path | str = "data") -> pd.DataFrame
         FileNotFoundError: If no ``prices.parquet`` file exists in ``data_dir``.
         TickerNotCachedError: If one or more requested tickers are not
             present in the cached file.
+
     """
     data_dir = Path(data_dir)
     parquet_path = data_dir / "prices.parquet"
@@ -207,6 +216,7 @@ def run_ingestion(source: DataSource, tickers: list[str], start: date, end: date
 
     Returns:
         Cleaned DataFrame of prices indexed by date, one column per ticker.
+
     """
     raw = source.fetch(tickers, start, end)
     cleaned = clean_data(raw)

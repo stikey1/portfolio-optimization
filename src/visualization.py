@@ -37,6 +37,7 @@ def plot_efficient_frontier(
     Returns:
         go.Figure: Plotly figure object with the frontier, special portfolios,
             and Capital Market Line rendered as interactive chart.
+
     """
     # The actual frontier boundary, traced point-by-point via constrained
     # minimize_variance(target_return=...) -- not an approximation.
@@ -128,6 +129,7 @@ def plot_equity_curve(
     Returns:
         go.Figure: Plotly figure object with the strategy and benchmarks rendered
             as overlaid line charts.
+
     """
     fig = go.Figure()
 
@@ -174,6 +176,7 @@ def weights_bar_graph(
         min_weight_display: Weights below this (in absolute value) are
             dropped from the chart to avoid clutter from near-zero
             allocations sitting at the SLSQP bound.
+
     """
     w = weights[weights.values >= min_weight_display].sort_values(ascending=True)
 

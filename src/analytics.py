@@ -21,6 +21,7 @@ def cumulative_returns(returns: pd.Series) -> pd.Series:
     
     Returns:
         pd.Series: Cumulative returns indexed by date, where 0.10 means 10% total gain.
+
     """
     # fill NaN with 0
     clean_returns = returns.fillna(0.0)
@@ -44,6 +45,7 @@ def annualized_sharpe_ratio(returns: pd.Series, risk_free_rate: float = 0.0,
     Returns:
         float: Annualized Sharpe ratio. Returns 0 if volatility is zero, NaN if
             fewer than 2 data points.
+
     """
     rf_per_period = (1 + risk_free_rate) ** (1 / periods_per_year) - 1
     excess_returns = returns.dropna() - rf_per_period
@@ -70,6 +72,7 @@ def max_drawdown(returns: pd.Series) -> float:
     Returns:
         float: Maximum drawdown as a decimal (negative), e.g., -0.25 for 25% loss.
             Returns NaN if returns are empty.
+
     """
     if returns.empty:
         return np.nan
@@ -94,5 +97,6 @@ def annualized_volatility(returns: pd.Series, periods_per_year: int = 252) -> fl
     
     Returns:
         float: Annualized volatility as a decimal, e.g., 0.15 for 15% annual volatility.
+
     """
     return returns.dropna().std() * np.sqrt(periods_per_year)

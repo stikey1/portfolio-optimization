@@ -1,6 +1,8 @@
-"""Mock price data generator -- Geometric Brownian Motion, same approach as
-the pytest fixtures in tests/test_backtester.py, so the numbers you see in
-the plots are consistent with what your test suite already validates against.
+"""Mock price data generator using Geometric Brownian Motion.
+
+Generates correlated price paths using the same GBM approach as the pytest
+fixtures in tests/test_backtester.py, so the numbers you see in the plots
+are consistent with what your test suite already validates against.
 
 GBM model: dS = mu * S * dt + sigma * S * dW
 Discretized:  S_t = S_{t-1} * exp((mu - 0.5*sigma^2)*dt + sigma*sqrt(dt)*Z)
@@ -38,6 +40,7 @@ def generate_mock_prices(
 
     Returns:
         DataFrame of prices, index=dates, columns=tickers.
+
     """
     if tickers is None:
         tickers = ["AAPL", "MSFT", "GOOG", "AMZN", "TSLA"]

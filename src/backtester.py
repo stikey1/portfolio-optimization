@@ -39,6 +39,7 @@ def backtest(
             - 'weights_history' (pd.DataFrame): Portfolio weights at each rebalance date,
               indexed by rebalance date with one column per ticker.
               Returns an empty dict if insufficient data for any rebalance window.
+
     """
     log_returns = compute_returns(prices, method="log")
     simple_returns = compute_returns(prices, method="simple")

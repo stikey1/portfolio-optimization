@@ -13,6 +13,7 @@ def compute_returns(prices: pd.DataFrame, method: str = "log") -> pd.DataFrame:
 
     Returns:
         DataFrame of daily returns.
+
     """
     if(prices.any().any() <= 0):
         raise ValueError("Prices cannot be negative")
@@ -31,6 +32,7 @@ def compute_expected_returns(returns: pd.DataFrame) -> pd.Series:
 
     Returns:
         Series of expected returns.
+
     """
     mu = returns.mean()*252
     return mu
@@ -45,6 +47,7 @@ def compute_covariance(returns: pd.DataFrame, annualize: bool = True) -> pd.Data
 
     Returns:
         Covariance matrix as a DataFrame.
+
     """
     cov = returns.cov()
     if annualize:
